@@ -1,111 +1,108 @@
-# 赛事、规则与作战环境
+# Event, rules, and working environment
 
-> 本文汇总两件事：**这场比赛到底是什么赛制**，以及**我们是在什么条件下打的**。
-> 后者决定了后面所有技术选择的合理性。
+This page covers two things: **what the competition actually was**, and **under what conditions we
+played it**. The latter explains every technical choice that follows.
 
-## 1. 赛事概况
+## 1. Event overview
 
-| 项 | 内容 |
+| Item | Detail |
 |---|---|
-| 名称 | HKCERT CTF 2026 · 预选赛（Qualifier） |
-| 时间 | 2026-11-06 18:00 → 2026-11-07 18:00（HKT，24 小时线上） |
-| 形式 | 非传统 Jeopardy，而是一款 Unity 游戏客户端 `401Unauthorized` |
-| 题目分类 | Binary Exploitation / Cryptography / Forensics / Reverse / Web / Misc |
-| 计分 | **成就（动态分值）**，不是 flag 数量 |
-| flag 格式 | `hkcert26{[a-z0-9_]+}` |
+| Name | HKCERT CTF 2026 · Qualifier |
+| Window | 2026-11-06 18:00 → 2026-11-07 18:00 (HKT, 24 h online) |
+| Format | Not classic Jeopardy — a Unity game client, `401Unauthorized` |
+| Categories | Binary Exploitation / Cryptography / Forensics / Reverse / Web / Misc |
+| Scoring | **achievements (dynamic value)**, not flag count |
+| Flag format | `hkcert26{[a-z0-9_]+}` |
 
-赛制说明（来自 `ctf.hkcert.org` 的 Contest Format / Important Dates）：
+From the Contest Format / Important Dates pages:
 
-- 24 小时不间断；
-- 选手在游戏世界里探索、找线索、完成任务；
-- 晋级复审要求提交 **3 道题**的 writeup。
+- 24 hours non-stop;
+- players explore the game world, find clues, complete tasks;
+- advancing required writeups for **3 challenges**.
 
-## 2. 规则要点（摘自 `platform.ctf.hkcert.org/rules`）
+## 2. Rules (from `platform.ctf.hkcert.org/rules`)
 
-### 授权范围
+### Authorized scope
 
-- ✅ `*.chal.sh` **任意层级子域**及其解析到的主机/服务
-- ✅ 赛方明确提供的其他资源
-- ❌ `pwnable.hk`、`hkcert.org`（主站，非 `chal.sh`）
-- ❌ 官方 Discord / 支持渠道
-- ❌ 比赛平台本身（`platform.ctf.hkcert.org`）
+- ✅ any-level subdomains of `*.chal.sh`, and the hosts/services they resolve to
+- ✅ other resources explicitly provided by the organisers
+- ❌ `pwnable.hk`, `hkcert.org` (main site, not `chal.sh`)
+- ❌ official Discord / support channels
+- ❌ the competition platform itself (`platform.ctf.hkcert.org`)
 
-### 禁止事项
+### Prohibited
 
-- DoS / 泛洪 / 任何形式的资源耗尽攻击
-- 攻击比赛平台
-- 社工（对赛方人员、其他选手）
-- 向队外分享 flag / 账号 / 解法；赛前泄露题目内容
+- DoS / flooding / any resource-exhaustion attack
+- attacking the platform
+- social engineering (organisers or other players)
+- sharing flags / accounts / solutions outside the team; leaking challenge content before the event
 
-### 关于 AI
+### On AI
 
-规则明确**允许使用 AI 工具**，但有一条硬要求：
+AI tools are **explicitly allowed**, with one hard requirement:
 
-> 晋级复审的 writeup 必须写清**分析过程与人工验证**，不能只贴 prompt 或最终答案。
+> A review writeup must document the **analysis process and human verification** — not just prompts
+> or final answers.
 
-这一条直接决定了本文的组织方式 —— 见 [§7 诚实性声明](#7-诚实性声明与-ai-使用说明)。
+That requirement shapes this whole document — see [README §7](../README.md#7-honesty-statement-and-ai-usage).
 
-### 队伍
+### Teams
 
-每队最多 4 人。
+Up to 4 members.
 
-## 3. 规则页的抓取（第一个小技巧）
+## 3. Extracting the rules page (first small trick)
 
-`https://platform.ctf.hkcert.org/rules` 是个 **Vite SPA**，正文不在 HTML 里，
-而是内嵌在 `assets/index-*.js` 的打包产物中。
+`https://platform.ctf.hkcert.org/rules` is a **Vite SPA**: the body is not in the HTML, it is baked
+into `assets/index-*.js`.
 
-做法（Node `fetch`）：
+Approach (Node `fetch`):
 
 ```js
-// 1. 抓首页 HTML，取出 <script src=".../assets/index-*.js">
-// 2. 下载 bundle，正则定位规则片段
+// 1. fetch the landing HTML, grab <script src=".../assets/index-*.js">
+// 2. download the bundle, locate the rules fragment
 const m = js.match(/hkcert26\{[\s\S]*?var ug=F\(/);
-// 3. 从片段里提取三份 markdown 原文
+// 3. pull the three markdown copies out of the fragment
 //    en / zh-Hant / zh-Hans
 ```
 
-拿到三语原文后，规则就完全可检索了。
+With three language copies in hand, the rules become fully searchable.
 
-> 这类"SPA 把内容打进 bundle"的站点，`Ctrl+U` 看不到东西是正常的，
-> 应该直接去 `assets/*.js` 里找。
+> For SPA sites that inline their content into the bundle, `Ctrl+U` shows nothing —
+> go straight to `assets/*.js`.
 
-## 4. 作战环境
+## 4. Working environment
 
-| 项 | 值 |
+| Item | Value |
 |---|---|
 | OS | Windows 10/11 |
 | Shell | PowerShell 5.1 |
-| Python | 3.11.9（自带 `cryptography` / `numpy` / `Pillow`） |
-| 缺失工具 | 7z、Ghidra、IDA、Wireshark、Docker |
+| Python | 3.11.9 (with `cryptography` / `numpy` / `Pillow` bundled) |
+| Missing tools | 7z, Ghidra, IDA, Wireshark, Docker |
 
-### 踩坑 1：TLS 栈是坏的
+### Pitfall 1: broken TLS stack
 
-本机 `curl.exe` 与 PowerShell 的 SChannel 都报：
+Both `curl.exe` and PowerShell's SChannel fail on this machine:
 
 ```
 SEC_E_NO_CREDENTIALS
-基础连接已经关闭
 ```
 
-所有 HTTPS 请求改用：
+All HTTPS traffic moved to Node's `fetch` (`probe.mjs` / `getroom.cjs` / `yt.mjs`) or Python `urllib`.
 
-- Node 的 `fetch`（`probe.mjs` / `getroom.cjs` / `yt.mjs`）
-- 或 Python 的 `urllib`
+### Pitfall 2: no archivers
 
-### 踩坑 2：没有压缩工具
+Archives were handled with Python's `zipfile` / `gzip`; the disk image needed a hand-written minimal
+NTFS parser (its output is `_read/ntfs_*.txt`).
 
-压缩包用 Python 的 `zipfile` / `gzip` 处理；
-磁盘镜像自己写最小 NTFS 解析器（`_read/ntfs_*.txt` 就是它的产物）。
+### Pitfall 3: no OCR library
 
-### 踩坑 3：没有 OCR 库
+Glyph segmentation and clustering used **only Pillow + numpy** — no Tesseract, no PaddleOCR.
 
-楔形文字的切分 + 聚类**只用 Pillow + numpy**，没装 Tesseract / PaddleOCR。
+## 5. Redemption mechanics (client-side evidence)
 
-## 5. 兑换机制（客户端证据）
+The easiest thing to get wrong in this event: **flags are not submitted on a web page**.
 
-这是本场比赛最容易搞错的一点：**flag 不是网页提交**。
-
-### 本地化文案
+### Localisation strings
 
 ```
 Mervyn: 兌換代碼讓你輸入代碼，領取對應獎勵。
@@ -115,40 +112,40 @@ Mervyn: 兌換代碼讓你輸入代碼，領取對應獎勵。
 此代碼已兌換過。
 ```
 
-### 代码证据
+### Code evidence
 
-`CTFGame.UI.dll` 的字符串表里有：
+`CTFGame.UI.dll` string table contains:
 
 ```
 RedeemWindow    RedeemCode    OpenRedeem    redeemButton
 ```
 
-网络层有：
+The networking layer contains:
 
 ```
 AchievementClientServiceSubmitFlagRequest
 AchievementClientServiceSubmitFlagResponse
 ```
 
-响应字段：
+Response fields:
 
 ```
-outcome            // 兑换结果
-achievement_id     // 兑换成功时返回的成就 id
-text               // 展示给玩家的文案
+outcome            // redemption result
+achievement_id     // returned on success
+text               // message shown to the player
 ```
 
-### 结论
+### Conclusion
 
 ```
-找到 flag  →  「兌換代碼」窗口  →  POST 提交  →  返回 achievement_id  →  成就到账
+find flag  →  "redeem code" window  →  POST  →  achievement_id returned  →  achievement granted
 ```
 
-**flag → 成就的映射在服务端**，客户端拿不到，所以本地无法离线验证。
+**The flag → achievement mapping is server-side**; the client cannot validate it offline.
 
-## 6. 成就系统的观测
+## 6. Observing the achievement system
 
-### `Player.log` 里能看到的解锁
+### Unlocks visible in `Player.log`
 
 ```
 gits_case_opened
@@ -158,33 +155,31 @@ first_dungeon_entry
 quest_beginner
 ```
 
-（对应：开案 / 老秘技依然有效 / 全身而退? / 首次进地牢 / 新手任务）
+### The client only receives events
 
-### 客户端只收事件
+Achievement evaluation is server-side; the client only receives `AchievementEarnedEvent`.
 
-成就判定在服务端，客户端只接收 `AchievementEarnedEvent`。
+### The total is hidden
 
-### 总数被隐藏
+The achievement page showed **"unlocked 3/???"** — the denominator is hidden. We reconstructed 42
+achievements from screenshots but cannot confirm completeness.
 
-成就页显示 **「已解锁 3/???」**，分母是隐藏的 —— 我们靠截图拼出了 42 条，
-但无法确认是否完整。
+## 7. Timeline (merged across sessions)
 
-## 7. 时间线（三个会话的合并）
-
-| 时间 | 事件 |
+| Time | Event |
 |---|---|
-| 18:03 | 读规则（SPA bundle 提取） |
-| 18:10 | 建工作区、环境准备 |
-| 18:20–19:10 | 泥板截图 OCR 路线（未走通，但确认了"单表替换"） |
-| **19:20** | **发现 `StreamingAssets` 明文，两题直接破** |
-| 19:30–19:50 | GhostDisk 四条 flag |
-| 20:00+ | 游戏内成就线：AI 法庭 / FinSim / 游戏中心 |
-| 20:40 | AI Judge 通过（`Achievement unlocked.`） |
-| 21:00+ | Typeway 2000 机制打穿（245 WPM） |
-| 22:00+ | Web 面侦察（Quick.Cms / dev-log-viewer），会话卡在 Cookies 独占锁 |
+| 18:03 | rules extraction (SPA bundle) |
+| 18:10 | workspace + environment setup |
+| 18:20–19:10 | tablet OCR route (failed, but established "this is a substitution") |
+| **19:20** | **found plaintext in `StreamingAssets`; both misc challenges fell** |
+| 19:30–19:50 | GhostDisk, four flags |
+| 20:00+ | in-game achievements: AI Court / FinSim / arcade |
+| 20:40 | AI Judge passed (`Achievement unlocked.`) |
+| 21:00+ | Typeway 2000 mechanics cracked (245 WPM) |
+| 22:00+ | web recon (Quick.Cms / dev-log-viewer); blocked on the cookie lock |
 
-## 8. 三条硬约束（贯穿全文）
+## 8. Three hard constraints (throughout)
 
-1. **授权边界只有 `*.chal.sh`** —— 所有请求都没出这个范围
-2. **AI 可以用，但过程必须可复现** —— 本文每个结论都带命令或脚本
-3. **flag 只在队内** —— 发布前按 [附录 E](#附录-e-发布前脱敏) 做脱敏
+1. **Authorized scope is `*.chal.sh` only** — no request left it
+2. **AI is allowed, but the process must be reproducible** — every claim here carries a command or script
+3. **Flags stay in-team** — redact before publishing (see [Appendix E](../README.md#appendix-e--redaction-before-publishing))

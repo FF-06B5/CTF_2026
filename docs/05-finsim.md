@@ -1,9 +1,9 @@
-# FinSim · 一个完整的经济模拟
+# FinSim · a complete economic simulation
 
-> 地点: 大厅 · FinSim 终端
-> 结论: 机制完整、校验到位，靠单个漏洞打不穿；`Discover` 门槛极高
+> Location: lobby · FinSim terminal
+> Verdict: fully implemented and properly validated; no single gap punches through it
 
-## 1. 界面结构
+## 1. Layout
 
 ```
 FinSim — National Agriculture Ventures
@@ -11,51 +11,51 @@ FinSim — National Agriculture Ventures
 1000.00 CR   ⚡ 80/100   8 actions   Day 1 / 30   [Next day 🌙]
 ```
 
-底部 11 个页签：
+Eleven tabs across the bottom:
 
-| 页签 | 内容 |
+| Tab | Content |
 |---|---|
-| **Build** | 建造面板 |
-| **Market** | 水果买卖（动态定价）+ 果汁台 |
-| **Bag** | 背包：水果库存、瓶子、拍照、卖出 |
-| **Deliver** | 交付合约 + 竞价 |
-| **Trade** | 币圈交易所（ORNG / APPL / CHIV / BITE） |
-| **Invoices** | 开票 |
-| **Orders** | 订单（未深入） |
-| **Album** | 相册 |
-| **Wallet** | 流水账 |
-| **News** | 市场新闻 |
-| **Discover** | 三张未解锁卡 |
+| **Build** | construction panel |
+| **Market** | fruit trading (dynamic pricing) + juice stand |
+| **Bag** | inventory: fruit, bottles, photo, sell |
+| **Deliver** | delivery contracts + bidding |
+| **Trade** | coin exchange (ORNG / APPL / CHIV / BITE) |
+| **Invoices** | invoicing |
+| **Orders** | orders (not explored) |
+| **Album** | photo album |
+| **Wallet** | ledger |
+| **News** | market news |
+| **Discover** | three locked cards |
 
-## 2. 建造
+## 2. Build
 
-| 设施 | 价格 | 效果 |
+| Facility | Price | Effect |
 |---|---|---|
-| Orange orchard | 40.00 CR | +30 存储 · 🍊 收成 |
-| Apple orchard | 40.00 CR | +30 存储 · 🍎 收成 |
-| Juice factory | 30.00 CR | +30 存储 · 榨汁 |
-| Delivery truck | 20.00 CR | 解锁 delivery bids |
-| Warehouse | 25.00 CR | +50 水果存储 |
+| Orange orchard | 40.00 CR | +30 storage · 🍊 harvest |
+| Apple orchard | 40.00 CR | +30 storage · 🍎 harvest |
+| Juice factory | 30.00 CR | +30 storage · make juice |
+| Delivery truck | 20.00 CR | unlocks delivery bids |
+| Warehouse | 25.00 CR | +50 fruit storage |
 
-果汁工坊：`2 水果 + 0.80 CR → 1 瓶`。
+Juice workshop: `2 fruit + 0.80 CR → 1 bottle`.
 
-## 3. 跑通的完整循环
+## 3. The full loop we ran
 
 ```
-建造(115 CR) → 买 20 个橙子(27.60 CR) → 榨 5 瓶(4.00 CR)
-→ 批量卖出(33.50 CR) → 接单竞价 → 派车 → 开票收款
+build (115 CR) → buy 20 oranges (27.60 CR) → juice 5 bottles (4.00 CR)
+→ bulk sell (33.50 CR) → bid on a contract → send the truck → invoice
 ```
 
-实测数据：
+Measured:
 
-| 步骤 | 结果 |
+| Step | Result |
 |---|---|
-| Build 4 项 | `1000.00 → 885.00 CR`，storage `0/120` |
-| Market 买 20 橙 | `857.40 CR`，storage `20/120`，橙子参考价 `1.00 → 1.80` |
-| 榨 5 瓶 | `853.40 CR`，橙子 `20 → 10` |
-| 批量卖 5 瓶 | `+33.50 CR`（9 CR × 80% − 0.50/瓶手续费） |
+| Build 4 facilities | `1000.00 → 885.00 CR`, storage `0/120` |
+| Buy 20 oranges | `857.40 CR`, storage `20/120`, orange reference `1.00 → 1.80` |
+| Juice 5 bottles | `853.40 CR`, oranges `20 → 10` |
+| Bulk sell 5 bottles | `+33.50 CR` (9 CR × 80% − 0.50 per bottle) |
 
-## 4. 交付与竞价
+## 4. Delivery and bidding
 
 ```
 CWE delivery                [open]   Day 2
@@ -63,53 +63,55 @@ Place bid for service charge
 Bid from Swift Freight: 9.95 CR
 ```
 
-- 合约名 **`CWE delivery`** —— CWE = Common Weakness Enumeration，明示漏洞类型
-- 对手 **Swift Freight** 报价会浮动（见过 8.73 / 9.95）
-- 我们报 **1.00 CR** 赢了（最低价中标）
-- 派车后生成合约 `CWE-3482`，状态 `Awaiting truck` → 派车 → `paid`
+- The contract is literally named **`CWE delivery`** — CWE = Common Weakness Enumeration, i.e. the
+  authors are telling you the weakness class
+- Rival **Swift Freight** quotes a floating price (we saw 8.73 / 9.95)
+- We bid **1.00 CR** and won (lowest bid wins)
+- Sending the truck creates contract `CWE-3482`: `Awaiting truck` → dispatched → `paid`
 
-## 5. 开票：三个边界都试过了
+## 5. Invoicing: all three boundaries tested
 
-开票表单：`Contract reference` / `Amount CR` / `Description`。
+Form fields: `Contract reference` / `Amount CR` / `Description`.
 
-| 尝试 | 结果 | 说明 |
+| Attempt | Result | Meaning |
 |---|---|---|
-| 空合约号 | `Please fill out this field.` | 客户端必填校验 |
-| `-10` | `Value must be greater than or equal to 0.01.` | 浏览器 `min` 校验 |
-| `99999` | `rejected: invalid amount` | **服务端有金额上限** |
-| `1.00`（合约额） | ✅ `paid` | 正常路径 |
-| 同合约再开 `1.00` | `rejected: no open obligation` | **防重放有效** |
-| 同合约开 `9.00` | `rejected: no open obligation` | 合约已关闭 |
+| empty reference | `Please fill out this field.` | client-side required check |
+| `-10` | `Value must be greater than or equal to 0.01.` | browser `min` validation |
+| `99999` | `rejected: invalid amount` | **server-side cap exists** |
+| `1.00` (contract value) | ✅ `paid` | happy path |
+| re-invoice `1.00` | `rejected: no open obligation` | **replay protection works** |
+| same contract, `9.00` | `rejected: no open obligation` | obligation already closed |
 
-结论：
+Conclusions:
 
-- 金额不能造（服务端校验）
-- 次数不能造（obligation 一次性）
-- 负数被客户端挡，且由于服务端返回的是 `invalid amount` 而不是"已关闭"，
-  说明服务端**先查 obligation 再查金额**，绕过顺序也堵死了
+- the amount cannot be inflated (server validates)
+- the count cannot be inflated (obligation is one-shot)
+- negatives are blocked client-side, and because the server answered `invalid amount` rather than
+  "already closed", the server **checks the obligation before the amount** — so reordering does not
+  help either
 
-## 6. 卖出：需求区间
+## 6. Selling: a demand band
 
-Bag 页每瓶果汁都有独立售价框：
+Each bottle in the Bag has its own price field:
 
 ```
 Orange juice · Use by day 7 · ITEM-0001
 [📷 Photo]  [Drink · 20]  Sell: [9] [Sell]   (0.50 CR selling fee)
 ```
 
-填 `999999` 卖：
+Selling at `999999`:
 
 ```
 Consumer demand supports 1–9 CR today
 ```
 
-每天的需求区间不同（今天是 1–9），这是**设计好的动态系统**，不是漏洞。
+The band changes per day (1–9 today). This is a **designed dynamic system**, not a bug.
 
-批量卖出规则写在按钮下面：
+Bulk-sale rule, printed under the button:
 
 > Bulk sale: 20% below individual maximum, then 0.50 CR fee per bottle.
 
-## 7. 币圈（Trade）
+## 7. Coins (Trade)
 
 ```
 ORNG  OrangeCoin   16.40 CR   5 held
@@ -118,37 +120,38 @@ CHIV  ChiveCoin    10.05 CR   0 held
 BITE  BiteCoin      9.83 CR
 ```
 
-带 Buy / Sell 两个方向，价格随天数波动 —— 是投机/套利玩法，不是印钞机。
+Buy / sell both directions, prices drift with the day — speculation, not a money printer.
 
-## 8. Discover：三张锁
+## 8. Discover: three locks
 
 ```
 🔒 Undiscovered — Keep exploring the economy.   ×3
 ```
 
-跑完整循环（建造 → 买 → 加工 → 拍照 → 卖 → 接单 → 开票）+ 补齐全部 5 种设施，
-**一张都没开**。
+After the full loop (build → buy → process → photograph → sell → bid → invoice) **and** building all
+five facilities, not one card opened.
 
-判断：解锁条件远高于"正常玩一遍"，可能是 30 天全通 / 上万 CR / 特定稀有事件。
+Assessment: the unlock conditions are far beyond "play through once" — possibly all 30 days, a
+five-figure CR balance, or a specific rare event.
 
-## 9. 复盘
+## 9. Retrospective
 
-这个子系统是**完整实现**的：
+The subsystem is **fully implemented**:
 
-- 服务端校验金额上限 ✔
-- 一次性 obligation 防重放 ✔
-- 动态需求区间 ✔
-- 存储上限 + 每日持有成本 ✔
+- server-side amount cap ✔
+- one-shot obligation / replay protection ✔
+- dynamic demand band ✔
+- storage cap + daily holding cost ✔
 
-它更像一个"真实的小游戏"，而不是一个待打的漏洞靶。
-在 24 小时赛制里，投入产出比很低。
+It behaves like a real small game rather than a vulnerable target, so the return on time was poor
+for a 24-hour event.
 
-### 唯一的收获
+### The one useful signal
 
-`CWE delivery` 这个命名 + "竞价"机制，提示的是**逻辑漏洞**方向
-（price manipulation / 重复结算 / 越权访问他人合约），
-而不是注入或溢出。我们验证了其中两条（金额、重放）都被堵住，
-剩下 **合约号越权（IDOR）** 没来得及试：
+The name `CWE delivery` plus the bidding mechanic points at **business-logic flaws**
+(price manipulation / duplicate settlement / cross-tenant contract access), not injection or overflow.
+We ruled out two of the three (amount, replay). The remaining one —
+**contract IDOR** — was not tested:
 
-合约号是**顺序编号**（`CWE-3482`），
-如果能用别人的合约号开票，就是典型的 `CWE-639`。
+contract IDs are **sequential** (`CWE-3482`), so invoicing against someone else's ID would be a
+textbook `CWE-639` if the server does not scope the lookup to the authenticated player.

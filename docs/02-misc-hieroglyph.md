@@ -1,24 +1,25 @@
-# 未译讯号 · 圣书体单表替换
+# Untranslated Signal · Egyptian hieroglyphs
 
 > Flag: `hkcert26{REDACTED}`
-> 类别: Misc / Crypto
+> Category: Misc / Crypto
 
-## 1. 题面
+## 1. The challenge
 
-第二块"看不懂的石板"，这次是埃及圣书体（Unicode `U+13000`–`U+1342F`）。
-同一个套路：第一行是 flag，正文是英文。
+The second "undecipherable tablet" — this time Egyptian hieroglyphs
+(Unicode `U+13000`–`U+1342F`). Same pattern: first line is the flag, body is English.
 
-## 2. 区别：这次 key 是白送的
+## 2. The difference: the key is handed over
 
-和泥板题不同，这题的正文 5 行是**全字母句**：
+Unlike the cuneiform challenge, the body's five lines are the **pangram**:
 
 ```
 the quick brown fox jumps over the lazy dog
 ```
 
-逐词给出**完整 26 字母映射**，一个不缺。等于出题人把 key 直接写在了题面上。
+Word by word, that gives a **complete 26-letter mapping**, no gaps. The authors effectively wrote the
+key onto the challenge itself.
 
-## 3. 替换表
+## 3. The table
 
 ```
 𓉔 h  𓈎 k  𓎡 c  𓇋 e  𓂋 r  𓏏 t
@@ -28,9 +29,9 @@ the quick brown fox jumps over the lazy dog
 𓆣 j  𓋹 v
 ```
 
-按全字母句逐词对应：
+Correspondence, word by word:
 
-| 词 | 符号序列 |
+| Word | Glyphs |
 |---|---|
 | the | 𓏏 𓉔 𓇋 |
 | quick | 𓐍 𓅱 𓇌 𓎡 𓈎 |
@@ -41,16 +42,12 @@ the quick brown fox jumps over the lazy dog
 | lazy | 𓃭 𓄿 𓊽 𓆓 |
 | dog | 𓂧 𓁹 𓎼 |
 
-## 4. 解 flag 行
+## 4. Decoding the flag line
+
+The flag line is a single glyph run; substituting each symbol via the table above yields:
 
 ```
-𓉔𓈎𓎡𓇋𓂋𓏏26{𓋴𓇌𓅓𓊪1𓇋_𓎡𓂋𓆓𓊪𓏏0_𓎡𓉔𓄿𓃭𓃭𓇋𓈖𓎼𓇋_𓇋7𓃀3𓄿6𓎡2}
-```
-
-逐字替换：
-
-```
-h k c e r t 26 { …正文已脱敏… }
+h k c e r t 26 { …body redacted… }
 ```
 
 →
@@ -59,24 +56,26 @@ h k c e r t 26 { …正文已脱敏… }
 hkcert26{REDACTED}
 ```
 
-## 5. 为什么这题"简单"
+## 5. Why this one was "easy"
 
-flag 明文本身就是一句大白话 —— 出题人自己承认这是送分题。（正文已脱敏）
+The flag plaintext is a plain-English phrase — the authors themselves treated this as a giveaway.
+(Flag body redacted; the hex suffix is an anti-guess random segment.)
 
-两条 flag 的十六进制后缀都是防猜随机段，
-但前缀是语义化的，所以**先猜词形、再用源文件确认**是可行策略。
+Both flags in this family use a random hex suffix, but the prefix is semantic, so
+**guess the word shape first, then confirm against the source file** is a viable strategy.
 
-## 6. 探针脚本
+## 6. Probes
 
-| 文件 | 作用 |
+| File | Purpose |
 |---|---|
-| `ocr.py` / `ocr2.py` / `ocr3.py` | 字形切分 + 聚类 |
-| `ref.npz` / `ref2.npz` | 参考字形特征 |
-| `half.py` / `lines.py` / `chunks.py` | 版面切分 |
-| `decoded.txt` | 最终解出的明文 |
+| `ocr.py` / `ocr2.py` / `ocr3.py` | glyph segmentation + clustering |
+| `ref.npz` / `ref2.npz` | reference glyph features |
+| `half.py` / `lines.py` / `chunks.py` | layout segmentation |
+| `decoded.txt` | final decoded plaintext |
 
-## 7. 复盘
+## 7. Retrospective
 
-- 两题同源，做法一致：**判定是替换密码 → 找 Rosetta stone → 建表 → 代换**
-- 泥板题的难点在切分（字距 3–5 px），讯号题几乎没有难点（key 完整）
-- 真正的效率差在**是否想到去翻 `StreamingAssets/content/dialogs`**
+- Both challenges share one method: **classify as substitution → find a Rosetta stone → build the
+  table → substitute**
+- The cuneiform one is hard because of segmentation; this one is nearly free because the key is complete
+- The real efficiency difference was **thinking to look in `StreamingAssets/content/dialogs`**

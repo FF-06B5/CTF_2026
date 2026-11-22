@@ -1,157 +1,161 @@
-# 附录 · 42 条成就清单与分析
+# Appendix · The 42 achievements
 
-> 来源：游戏内成就页，共 42 个。
-> 解锁率是截图时刻（约 18:58，开赛 1 小时）的数据，只能作为相对难度参考。
+> Source: the in-game achievement page, 42 entries.
+> Unlock rates are from the screenshot taken around 18:58 (one hour into the event) and are only
+> useful as a relative difficulty signal.
 
-## 一、完整清单
+## 1. Full list
 
-| # | 成就 | 条件 | 解锁率 |
-|---|------|------|--------|
-| 1 | 诊断洞察 | 连续完成 12 次符合条件的缓冲区校准 | 0.0% |
-| 2 | 十步先机 | 连续准确预测 10 次信号频道 | 1.0% |
-| 3 | 墙影之下 | ???（隐藏） | 0.0% |
-| 4 | 越狱 | 击败 1/F 的首领狱守 | 0.2% |
-| 5 | 魔像崩毁 | 击败 2/F 的首领圣遗魔像 | 0.0% |
-| 6 | 碎心者 | 击败 3/F 的首领地牢之心 | 0.0% |
-| 7 | 迷宫行者 | 打开迷宫尽头的宝箱 | 0.0% |
-| 8 | 登峰造极 | 达到等级 50 | 0.0% |
-| 9 | 遥不可及 | ???（隐藏） | 0.0% |
-| 10 | 祝我圣诞快乐 | 救救我，ERINNNNNN！！我翻译不了！但我知道它们是两句！… | 0.0% |
-| 11 | 合并碎片 | 尝试合并来自 Discord 表情包商店的碎片吧！ | 0.0% |
-| 12 | 购买最贵的商品 | 尝试从 Discord 表情包商店购买最昂贵的商品吧！ | 0.0% |
-| 13 | 隐藏的秘密 | Discord 机器人『401 Emoji Shop』隐藏着某些东西… | 0.0% |
-| 14 | 企业日志部署工具 | 探索企业日志部署工具的秘密吧！ | 0.5% |
-| 15 | 第一天上班 | 跟 R. 走完工作台导览。这支闪存盘是工作室的财产。 | 33.8% |
-| 16 | 日志泄密 | 找出开发日志不小心泄漏的东西 | 0.6% |
-| 17 | 以管理员登录 | 系统应该是使用某种工具来托管『活动预告』网站…尝试获取其访问权限吧！ | 0.0% |
-| 18 | 通灵字盘六 | 超心理学家 | 0.0% |
-| 19 | 非人手速 | 在游戏中心的 Typeway 2000 赢得一场比赛 | 0.2% |
-| 20 | 奇怪的活动海报 | 在『活动预告』的海报里面似乎藏了什么秘密… | 0.0% |
-| 21 | 指令偏移 | 在收取三碗大麦粥及首次进入地牢的记录出现之前，偏离新手的煮粥指示 | 0.8% |
-| 22 | 初窥门径 | 解锁你的第一个技能 | 0.0% |
-| 23 | 百炼成钢 | 首次强化武器 | 1.8% |
-| 24 | 融会贯通 | 解锁所有技能，并将每个可升级技能升至最高等级 | 0.0% |
-| 25 | 开案 | 打开魅影工作台，挂载证物磁盘 | 17.4% |
-| 26 | 私房钱 | ???（隐藏） | 1.3% |
-| 27 | 五项全能 | 将五项属性全部提升至等级 10 | 0.0% |
-| 28 | 扫货一空 | 赞助商的内存，全数售清 | 0.0% |
-| 29 | 老秘技依然有效 | 输入古老的秘技——手柄或键盘皆可 | 12.2% |
-| 30 | 千锤百炼 | 将一把武器强化至 +100 | 0.0% |
-| 31 | 初胜之风 | 在低难度完成一场完整东风战并获得第一名 | 0.2% |
-| 32 | 迷宫征服者 | ???（隐藏） | 0.0% |
-| 33 | 全身而退 | 完成「初次潜入」任务 | 1.5% |
-| 34 | 全副武装 | 完成「强化装备」任务 | 0.6% |
-| 35 | 永恒轨道 | 继续玩……MMXXVI・XI・VI | 0.0% |
-| 36 | 时间守护者 1 | 以 ALL JUST 完成一场 Easy 演出 | 0.0% |
-| 37 | 时间守护者 2 | 以 ALL JUST 完成一场 Expert 演出 | 0.0% |
-| 38 | 时间守护者 3 | 以 FULL COMBO 完成一场 Troll 演出 | 0.0% |
-| 39 | 时间旅行者 1 | 在游戏上线前完成一场 Easy 演出 | 0.0% |
-| 40 | 时间旅行者 2 | 在游戏上线前 24 小时内完成一场 Expert 演出 | 0.0% |
-| 41 | 时间旅行者 3 | 在游戏上线前 5 分钟内完成一场 Troll 演出 | 0.0% |
-| 42 | 封印 | 在守卫全力应战下取胜，封存一座宝库 | 0.2% |
+| # | Achievement | Condition | Unlocked |
+|---|-------------|-----------|----------|
+| 1 | Diagnostic insight | 12 consecutive valid buffer calibrations | 0.0% |
+| 2 | Ten steps ahead | Predict 10 signal channels correctly in a row | 1.0% |
+| 3 | Beneath the wall's shadow | ??? (hidden) | 0.0% |
+| 4 | Jailbreak | Defeat the 1/F boss, the warden | 0.2% |
+| 5 | Golem collapse | Defeat the 2/F boss, the relic golem | 0.0% |
+| 6 | Heartbreaker | Defeat the 3/F boss, the dungeon heart | 0.0% |
+| 7 | Maze walker | Open the chest at the end of the maze | 0.0% |
+| 8 | Peak | Reach level 50 | 0.0% |
+| 9 | Out of reach | ??? (hidden) | 0.0% |
+| 10 | Merry Christmas to me | Help me, ERINNNNNN!! I can't translate it! But I know they are two sentences!… | 0.0% |
+| 11 | Merge the shards | Try merging shards from the Discord emoji shop! | 0.0% |
+| 12 | Buy the most expensive item | Try buying the priciest item in the Discord emoji shop! | 0.0% |
+| 13 | Hidden secret | The Discord bot '401 Emoji Shop' is hiding something… | 0.0% |
+| 14 | Enterprise log deployment tool | Explore the secrets of the enterprise log deployment tool! | 0.5% |
+| 15 | First day on the job | Complete the workstation tour with R. This flash drive is studio property. | 33.8% |
+| 16 | Log leak | Find what the dev log leaked by accident | 0.6% |
+| 17 | Log in as admin | The 'upcoming events' site seems hosted by some tool… try to get access! | 0.0% |
+| 18 | Ouija six | Parapsychologist | 0.0% |
+| 19 | Non-human speed | Win a Typeway 2000 race in the game center | 0.2% |
+| 20 | Strange event poster | Something is hidden inside the 'upcoming events' poster… | 0.0% |
+| 21 | Instruction drift | Deviate from the beginner porridge instructions before the "three bowls of barley porridge / first dungeon entry" record appears | 0.8% |
+| 22 | First glimpse | Unlock your first skill | 0.0% |
+| 23 | Tempered | Upgrade a weapon for the first time | 1.8% |
+| 24 | Mastery | Unlock every skill and max every upgradeable one | 0.0% |
+| 25 | Open the case | Open the phantom workstation and mount the evidence disk | 17.4% |
+| 26 | Pocket money | ??? (hidden) | 1.3% |
+| 27 | Pentathlete | Raise all five attributes to level 10 | 0.0% |
+| 28 | Sold out | The sponsor's memory, entirely sold out | 0.0% |
+| 29 | The old cheat still works | Enter the ancient cheat code — gamepad or keyboard | 12.2% |
+| 30 | Hundredfold | Upgrade a weapon to +100 | 0.0% |
+| 31 | First wind | Win a full East-round match on low difficulty, first place | 0.2% |
+| 32 | Maze conqueror | ??? (hidden) | 0.0% |
+| 33 | Clean exit | Complete the "first infiltration" quest | 1.5% |
+| 34 | Fully equipped | Complete the "upgrade equipment" quest | 0.6% |
+| 35 | Eternal orbit | Keep playing… MMXXVI・XI・VI | 0.0% |
+| 36 | Time keeper 1 | Clear an Easy performance with ALL JUST | 0.0% |
+| 37 | Time keeper 2 | Clear an Expert performance with ALL JUST | 0.0% |
+| 38 | Time keeper 3 | Clear a Troll performance with FULL COMBO | 0.0% |
+| 39 | Time traveller 1 | Clear an Easy performance before the game launched | 0.0% |
+| 40 | Time traveller 2 | Clear an Expert performance within 24 hours before launch | 0.0% |
+| 41 | Time traveller 3 | Clear a Troll performance within 5 minutes before launch | 0.0% |
+| 42 | Seal | Win against the guard at full strength and seal a vault | 0.2% |
 
-## 二、分层
+## 2. Tiers
 
-### A. 白给层（解锁率 ≥ 1%，纯操作/引导）
+### A. Freebies (≥ 1% unlocked — pure mechanics/onboarding)
 
-| 成就 | 解锁率 | 做法 |
+| Achievement | Unlocked | How |
 |---|---|---|
-| 第一天上班 | 33.8% | 跟着 R. 走完工作台导览 |
-| 开案 | 17.4% | 魅影工作台 + 挂载证物磁盘 |
-| 老秘技依然有效 | 12.2% | 输入经典秘技（↑↑↓↓←→←→BA） |
-| 百炼成钢 | 1.8% | 第一次强化武器 |
-| 全身而退 | 1.5% | 任务「初次潜入」 |
-| 私房钱 | 1.3% | 隐藏，但已有 1.3% 解出 → 条件不复杂 |
-| 十步先机 | 1.0% | 连续预测 10 次信号频道（说明存在稳定解法） |
-| 指令偏移 | 0.8% | 在触发「三碗大麦粥 / 首次进地牢」记录前，故意不按新手煮粥流程走 |
-| 日志泄密 | 0.6% | 开发日志里翻泄露内容 |
-| 全副武装 | 0.6% | 任务「强化装备」 |
+| First day on the job | 33.8% | follow R. through the workstation tour |
+| Open the case | 17.4% | phantom workstation + mount the evidence disk |
+| The old cheat still works | 12.2% | the classic Konami code (↑↑↓↓←→←→BA) |
+| Tempered | 1.8% | first weapon upgrade |
+| Clean exit | 1.5% | the "first infiltration" quest |
+| Pocket money | 1.3% | hidden, but 1.3% solved it — so the trigger is not exotic |
+| Ten steps ahead | 1.0% | predict 10 signal channels in a row (implies a deterministic solution exists) |
+| Instruction drift | 0.8% | deliberately ignore the beginner porridge steps before the trigger records fire |
+| Log leak | 0.6% | find the leaked content in the dev log |
+| Fully equipped | 0.6% | the "upgrade equipment" quest |
 
-### B. 安全挑战层（真正出 flag）
+### B. Security challenges (the ones that produce flags)
 
-| 成就 | 指向 | 考点推测 |
+| Achievement | Target | Likely focus |
 |---|---|---|
-| 隐藏的秘密 / 合并碎片 / 购买最贵的商品 | Discord 机器人『401 Emoji Shop』 | **401 = Unauthorized**：鉴权绕过、经济系统越权、碎片合成逻辑漏洞 |
-| 以管理员登录 | 『活动预告』网站，由"某种工具"托管 | 后台面板默认口令 / 已知 CVE / 路径泄露 |
-| 奇怪的活动海报 | 『活动预告』海报藏了东西 | 隐写、元数据、二维码/图层 |
-| 企业日志部署工具 | 某个"企业级日志部署工具" | 产品级漏洞（默认配置、未授权 API） |
-| 日志泄密 | 开发日志泄露 | git 历史、debug 输出、`.env` |
-| 祝我圣诞快乐 | "我翻译不了！但我知道它们是两句！" | **极可能就是泥板那类替换密码的第二块** |
-| 通灵字盘六 / 超心理学家 | 通灵板、读心 | RNG 预测 / 伪随机种子 |
+| Hidden secret / Merge the shards / Buy the most expensive item | Discord bot '401 Emoji Shop' | **401 = Unauthorized**: auth bypass, economy privilege escalation, shard-merge logic flaw |
+| Log in as admin | 'Upcoming events' site, hosted by "some tool" | admin panel default credentials / known CVE / path disclosure |
+| Strange event poster | something hidden in the poster | stego, metadata, QR/layers |
+| Enterprise log deployment tool | an "enterprise" log deployment product | product-level flaw (default config, unauthenticated API) |
+| Log leak | dev log leak | git history, debug output, `.env` |
+| Merry Christmas to me | "I can't translate it! But I know they are two sentences!" | almost certainly a second substitution-puzzle tablet |
+| Ouija six / Parapsychologist | Ouija board, mind reading | RNG prediction / weak PRNG seed |
 
-### C. 时间操控层
+### C. Time manipulation
 
-- **时间旅行者 1/2/3** —— 要求"**在游戏上线前**"完成演出 → 必须改客户端/系统时间
-- **永恒轨道** —— `MMXXVI・XI・VI` = **2026-11-06**，正是开赛日 → 大概率也是改时间触发
-- **祝我圣诞快乐** —— 圣诞 → 12 月 25 日，同样可能是日期触发
+- **Time traveller 1/2/3** — require clearing a performance "**before the game launched**" ⇒ manipulate
+  the client/system clock
+- **Eternal orbit** — `MMXXVI・XI・VI` = **2026-11-06**, the launch date ⇒ likely also clock/date based
+- **Merry Christmas to me** — Christmas ⇒ 25 December, plausibly date triggered
 
-这条线价值最高：一旦验证"游戏读本机时间"，四个成就可能一起拿。
+Highest-value line: once "the game trusts the local clock" is confirmed, four achievements may fall
+together.
 
-### D. 数值/刷子层（0.0%，纯耗时）
+### D. Grind tier (0.0% — pure time sink)
 
-登峰造极（等级 50）、千锤百炼（武器 +100）、融会贯通（全技能满级）、
-五项全能（五属性 10 级）、扫货一空（清空赞助商库存）。
+Peak (level 50), Hundredfold (+100), Mastery (all skills maxed), Pentathlete (five attributes at 10),
+Sold out (empty the sponsor's stock).
 
-典型的**时间陷阱**，24 小时赛制里性价比极低，除非发现速刷漏洞。
+Classic time traps; very poor value in a 24-hour event unless a fast-farm bug turns up.
 
-### E. 地牢战斗层
+### E. Dungeon combat tier
 
-越狱 1/F、魔像崩毁 2/F、碎心者 3/F（三层 Boss）、
-迷宫行者 / 迷宫征服者（迷宫宝箱）、封印（守卫全力应战下取胜）。
+Jailbreak 1/F, Golem collapse 2/F, Heartbreaker 3/F (three bosses), Maze walker / Maze conqueror
+(maze chest), Seal (win against the guard at full strength).
 
-吃装备和等级，和 D 层互相绑定。
+Gated by gear and level, hence coupled to tier D.
 
-## 三、关键线索解读
+## 3. Reading the clues
 
-### 1. 『401 Emoji Shop』
+### 1. '401 Emoji Shop'
 
-"401" 在 HTTP 里是 **Unauthorized**。一个 Discord 商店 + 三个成就
-（合并碎片 / 买最贵的东西 / 隐藏秘密），几乎明确指向**鉴权与越权**：
+"401" is HTTP **Unauthorized**. A Discord shop plus three achievements (merge shards / buy the most
+expensive item / hidden secret) points squarely at **authentication and authorization**:
 
-- 用别人的身份/订单号查订单 → IDOR
-- 碎片合成时数量或稀有度校验不严 → 负数/溢出
-- 最贵商品买不起 → 价格或余额客户端可控
+- query someone else's order by ID → IDOR
+- shard merging without quantity/rarity checks → negative amounts or overflow
+- the priciest item is unaffordable → price or balance trusted client-side
 
-### 2. 『活动预告』+ 企业日志部署工具
+### 2. 'Upcoming events' + enterprise log deployment tool
 
-两句话都提到"用某种工具托管"，很可能是**同一个产品**：
-先认产品，再找它的默认口令或已知漏洞。
+Both descriptions mention "hosted by some tool", likely the **same product**: identify it, then look
+for default credentials or a known CVE.
 
-（我们后来确认是 **Quick.Cms**，见 [07-webview-cms.md](07-webview-cms.md)。）
+(We later identified **Quick.Cms** — see [07-webview-cms.md](07-webview-cms.md).)
 
-### 3. 时间旅行者 / 永恒轨道
+### 3. Time traveller / Eternal orbit
 
-`MMXXVI・XI・VI` 是罗马数字的 2026-11-06。
-配合"在游戏上线前完成"，说明**游戏用本地时间做判定**。
+`MMXXVI・XI・VI` is Roman numerals for 2026-11-06.
+Combined with "before the game launched", the client clearly judges by **local time**.
 
-这不仅是成就技巧，也可能是一条漏洞线索（客户端时间可被用来绕过其他时间锁）。
+That is both an achievement trick and a possible vulnerability (client time bypassing other time locks).
 
-### 4. 祝我圣诞快乐
+### 4. Merry Christmas to me
 
-> "救救我，ERINNNNNN！！我翻译不了！但我知道它们是两句！…"
+> "Help me, ERINNNNNN!! I can't translate it! But I know they are two sentences!…"
 
-几乎肯定和**未译泥板**同源：一个 NPC 拿到看不懂的泥板，但能认出"是两句"。
-我们解的那块是 flag 行 + 4 段正文，所以这大概是另一块。
+Almost certainly related to the **untranslated tablet**: an NPC holding a tablet they cannot read, but
+recognising "two sentences". Ours had a flag line plus four body paragraphs, so this is probably another one.
 
-### 5. 十步先机 / 诊断洞察 / 通灵字盘六
+### 5. Ten steps ahead / Diagnostic insight / Ouija six
 
-三个都带"预测/读心"性质。如果是随机判定，正常玩几乎不可能连续成功 →
-要么找固定种子，要么直接读内存/改包。
-**十步先机有 1.0% 的人解出**，说明存在稳定解法。
+All three involve prediction or mind reading. If they are random judgements, consecutive success is
+practically impossible by hand — so either the seed is fixed or you read memory / patch traffic.
+**Ten steps ahead has 1.0% unlocked**, so a stable solution exists.
 
-## 四、计分观察
+## 4. Scoring observation
 
-平台的分数不是"flag 数量"，而是**成就稀有度加权**。经验观察：
+The platform does not score by flag count; it scores by **achievement rarity**. Empirically:
 
-- 成就分两档权重（约 50 / 500 基准分）
-- 最终得分 ≈ `0.1×基准 + 0.9×基准×稀有度因子`
-- 越少人解锁的成就，稀有度因子越大
+- achievements fall into two weight bands (roughly 50 and 500 base points)
+- final value ≈ `0.1 × base + 0.9 × base × rarity factor`
+- rarer achievements carry a larger rarity factor
 
-所以策略上应该优先打**解锁率低但可解**的成就，而不是刷数量。
+So the optimal strategy is to chase **rare but tractable** achievements rather than volume.
 
-## 五、推进顺序（事后总结）
+## 5. Priority order (post-event)
 
-1. **0–30 分钟**：扫 A 层（教程、秘技、强化、任务、私房钱），顺便熟悉地图和 NPC
-2. **30 分钟–3 小时**：打 B 层三个 Web/服务簇（401 商店 / 活动预告 / 日志工具）—— 直接出 flag
-3. **穿插**：验证时间操控（改本机时间试时间旅行者 1），一旦成立四个成就一起收
-4. **最后**：D/E 层只在发现速刷漏洞时才碰
+1. **0–30 min**: sweep tier A (tutorial, cheat code, upgrade, quests, pocket money) while learning the map
+2. **30 min–3 h**: attack the three web/service clusters in tier B — they produce flags directly
+3. **Interleaved**: verify the clock hypothesis (system time → Time traveller 1); if it holds, four
+   achievements fall at once
+4. **Last**: tier D/E only if a fast-farm bug appears

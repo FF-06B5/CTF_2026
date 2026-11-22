@@ -1,93 +1,93 @@
-# Webview 房间 · CEF 取证与 CMS 认证
+# Webview rooms · CEF forensics and CMS auth
 
-> 地点: 员工工具 → 开发日志检视器 / 活动预告 → CMS
-> 状态: 侦察完成，会话未拿到
+> Location: staff tools → dev log viewer / upcoming events → CMS
+> Status: recon done, session never obtained
 
-## 1. 房间架构
+## 1. Room architecture
 
-每个设施背后是一个 webview 房间，域名是随机的：
+Each facility is backed by a webview room on a random host:
 
 ```
 auth            https://auth.cg.chal.sh/
 room websocket  wss://r-<hash>.cg.chal.sh/room
-webview 入口    https://r-<hash>.cg.chal.sh/_webview/signin
+webview entry   https://r-<hash>.cg.chal.sh/_webview/signin
 ```
 
-全部在 `cg.chal.sh` / `cgo.chal.sh` 下（赛事授权范围内）。
+All under `cg.chal.sh` / `cgo.chal.sh` (inside the authorized scope).
 
-从 CEF 的 `History` 里能读到具体房间：
+CEF's `History` reveals concrete rooms:
 
 ```
 https://game.cgo.chal.sh/s/<room-hash>/<session-hash>/
-https://game.cgo.chal.sh/open#<43 字符 ticket>
+https://game.cgo.chal.sh/open#<43-char ticket>
 https://cms-<hash>.cgo.chal.sh/
 ```
 
-## 2. 会话模型
+## 2. Session model
 
-从 `/open` 的前端 JS 逆出来：
+Reversed from `/open`'s frontend JS:
 
 ```js
-ticket = location.hash.slice(1)            // 43 字符 [A-Za-z0-9_-]
+ticket = location.hash.slice(1)            // 43 chars [A-Za-z0-9_-]
 POST /session {"ticket": ticket}           // credentials: same-origin
   -> { path: "/",
        status_path: "/_office/visit/status",
        state: "ready" | "preparing" }
-  -> Set-Cookie 会话
-GET /                                      // 需要该 Cookie，否则 401
+  -> Set-Cookie
+GET /                                      // requires the cookie, else 401
 ```
 
-验证结果：
+Verified:
 
-| 操作 | 结果 |
+| Action | Result |
 |---|---|
-| `GET /` 无 Cookie | `401: Unauthorized`（aiohttp） |
-| `GET /open` | `200`，引导页（公开） |
-| 重放历史 ticket | `403: Forbidden`（一次性、已消费） |
+| `GET /` without cookie | `401: Unauthorized` (aiohttp) |
+| `GET /open` | `200`, the bootstrap page (public) |
+| replay a historical ticket | `403: Forbidden` (one-shot, consumed) |
 
-`WWW-Authenticate: Bearer` —— 需要 token，token 走 OAuth
-（`refresh_token` / `access_token` / `RefreshAccessToken`）。
+`WWW-Authenticate: Bearer` — a token is required, issued via OAuth
+(`refresh_token` / `access_token` / `RefreshAccessToken`).
 
-## 3. 开发日志检视器
+## 3. Dev log viewer
 
-入口：大厅按 `E` → 員工工具 → 開發日誌檢視器。
+Entry: lobby, press `E` → staff tools → dev log viewer.
 
 ```
 LOG_ROOT/
   code-review    11/5 20:43:11
   deployment     11/5 20:43:11
-  development    11/5 20:36:25   ← 时间戳不同
+  development    11/5 20:36:25   ← different timestamp
   incident       11/5 20:43:11
   retrospective  11/5 20:43:11
   testing        11/5 20:43:11
 ```
 
-操作要点：目录行是**双击**进入，不是 `QUERY`。
+Note: directory rows are opened by **double-click**, not by `QUERY`.
 
-### 泄露的日志
+### The leaked log
 
-`development/log.md`（1.75 KB）：
+`development/log.md` (1.75 KB):
 
 > Alex Morgan / **CloudSync Dashboard**
-> - 深色模式切换（跟随系统）
-> - 后端：`PATCH /api/v1/user/preferences` → PostgreSQL，**JWT 校验中间件**
-> - 前端：Tailwind + React，状态存 `localStorage`
-> - Next.js hydration mismatch → useEffect + 默认值
+> - dark-mode toggle (follows the system)
+> - backend: `PATCH /api/v1/user/preferences` → PostgreSQL, **JWT validation middleware**
+> - frontend: Tailwind + React, state in `localStorage`
+> - Next.js hydration mismatch → useEffect + defaults
 
-攻击面：越权/IDOR、JWT 算法混淆或弱密钥、SQLi、XSS。
+Attack surface: IDOR / broken access control, JWT algorithm confusion or weak secret, SQLi, XSS.
 
-`incident/` 为空（`NO LOGS FOUND`）—— 但恰好是"该有东西却没有"的位置。
+`incident/` is empty (`NO LOGS FOUND`) — suspiciously the one place that *should* have content.
 
-### 活的注入点
+### A live injection point
 
-目录框输入非目录名后弹窗：
+Entering a non-directory name in the path box pops:
 
 ```
 https://r-<hash>.cg.chal.sh
 [SECURITY ERROR] Unexpected non-whitespace character after JSON at position 4
 ```
 
-—— `Subdirectory` 参数**被送进 JSON 解析**，是可控的注入点。
+— the `Subdirectory` parameter is fed into a JSON parser. That is a controllable injection point.
 
 ### DEPLOY CONSOLE
 
@@ -100,95 +100,97 @@ Enterprise Log Deployment Utility
 5. Exit
 ```
 
-- 已连上（`[CONNECT]`）
-- `View Log` 槽位 0–7 全空（`Invalid index or log does not exist`）
-- 推断：先 `Create Log` 才有内容；`Create` / `Edit` 可能是**文件写原语**
+- connected (`[CONNECT]`)
+- `View Log` for slots 0–7 is empty (`Invalid index or log does not exist`)
+- inference: `Create Log` must run first; `Create`/`Edit` may be a **file-write primitive**
 
-## 4. 活动预告 · Quick.Cms
+## 4. Upcoming events · Quick.Cms
 
-从 CEF 的 `History` sqlite（未加密，直接可读）挖到：
+From CEF's `History` sqlite (unencrypted, readable):
 
 ```
 https://cms-<hash>.cgo.chal.sh/
-  标题: "Quick.Cms - fast and simple content management system"
+  title: "Quick.Cms - fast and simple content management system"
 https://cms-<hash>/open#<ticket>
-  标题: "Opening game"
+  title: "Opening game"
 ```
 
-指纹明确：**Quick.Cms**。
+Fingerprint is unambiguous: **Quick.Cms**.
 
-### 已验证
+### Verified
 
-| 项 | 结果 |
+| Item | Result |
 |---|---|
 | `/` | 401 |
-| `/open` | 200，引导页 |
-| 重放历史 ticket | 403（已消费） |
-| 缓存里两张 PNG 的 LSB | 纯噪点，无隐写 |
-| PNG 容器层（尾部 / 文本块） | 干净 |
-| `f_000002` 的二维码 | ✅ `https://www.youtube.com/channel/UC7FudH8K64SQn--gGBYmG9g` |
+| `/open` | 200, bootstrap page |
+| replay historical ticket | 403 (consumed) |
+| LSB of the two cached PNGs | pure noise, no stego |
+| PNG container layers (trailer / text chunks) | clean |
+| QR in `f_000002` | ✅ `https://www.youtube.com/channel/UC7FudH8K64SQn--gGBYmG9g` |
 
-两张海报：
+Two posters:
 
-- `f_000002` = "SUBSCRIBE FOR INTEL" YouTube 订阅海报（含二维码）
-- `f_000003` = "UPCOMING EVENTS" 行动公报（游戏里能看到的那张）
+- `f_000002` = "SUBSCRIBE FOR INTEL" YouTube poster (with QR)
+- `f_000003` = "UPCOMING EVENTS" bulletin (the one visible in-game)
 
-### 卡点：Cookies 被独占锁
+### Blocker: Cookies are exclusively locked
 
 ```
 %TEMP%\401Unauthorized\webview\<id>\cache\Default\Network\Cookies
 ```
 
-CEF 以独占方式持有该文件，`FileShare.ReadWrite` 也打不开；
-`esentutl /y` 需要 `SeBackupPrivilege`（非管理员不可用）。
+CEF holds the file exclusively; `FileShare.ReadWrite` cannot open it, and `esentutl /y` needs
+`SeBackupPrivilege` (unavailable without admin).
 
-**已知可行的解锁方式**（未执行）：让游戏离开该房间（关 webview / 退出大厅 / 关游戏）
-后立刻复制该文件，再用 sqlite 读 `cookies` 表。
-若是 v10 加密，需要 DPAPI + `Local State` 里的 key。
+**Known workable unlock** (not executed): leave the room (close the webview / return to lobby / quit
+the game), then copy the file immediately and read the `cookies` table with sqlite. If it is v10
+encrypted, DPAPI plus the `Local State` key is required.
 
-## 5. 照相亭 · 社交成就
+## 5. Photo kiosk · social achievement
 
 ```
 Photo kiosk
-  → Pick a picture（HKCERT / Black Bauhinia / VXRL）
+  → Pick a picture (HKCERT / Black Bauhinia / VXRL)
   → Warm / Cool / Frame
   → QR: https://unauthorized.cg.chal.sh   #401Unauthorized
   → "Share a public X post with the hashtag"
   → [Check my post]
 ```
 
-流程很清楚：**在 X 上公开发一条带 `#401Unauthorized` 的帖子**，
-点 `Check my post` 让服务器验证。这条必须真人操作（需要 X 账号），自动化做不了。
+The flow is explicit: **publish a public X post with `#401Unauthorized`**, then let the server verify.
+This requires a human with an X account; it cannot be automated.
 
-## 6. 可复用的侦察清单
+## 6. Reusable recon checklist for webview rooms
 
-webview 房间的固定动作（按性价比）：
+Ordered by return on effort:
 
 ```
-1. History            ← 未加密，直接 sqlite 读，能列出所有访问过的 URL / 标题
-2. Preferences        ← 域名、UA、设置
-3. Local Storage      ← 前端状态（React 的 localStorage 就在这里）
-4. Network\Cookies    ← 被独占锁，需要"先退出房间再复制"
-5. Service Worker / Cache Storage ← 静态资源、可能的旧版本 API
-6. 页面源码里的 /open、/_webview/signin、status_path
+1. History            ← unencrypted; sqlite it, list every URL/title ever visited
+2. Preferences        ← hosts, UA, settings
+3. Local Storage      ← frontend state (React's localStorage lives here)
+4. Network\Cookies    ← exclusively locked; copy after leaving the room
+5. Service Worker / Cache Storage ← static assets, possibly older API versions
+6. Page source for /open, /_webview/signin, status_path
 ```
 
-`History` 是最高性价比的一个 —— 它经常直接暴露：
-后端管理面板、上传接口、被隐藏的路径、以及**带 ticket 的完整 URL**。
+`History` is the highest-value single artifact — it frequently exposes admin panels, upload
+endpoints, hidden paths, and **complete URLs carrying tickets**.
 
-## 7. 复盘
+## 7. Retrospective
 
-| 尝试 | 结论 |
+| Attempt | Outcome |
 |---|---|
-| 直接打 `/` | 401，认证是硬门 |
-| 重放 ticket | 一次性，403 |
-| 海报隐写 | 干净（LSB / 容器层都试了） |
-| 二维码 | 有收获（YouTube 频道），但本机网络到 YouTube 超时 |
-| Cookies | 被独占锁，是本次最大的技术卡点 |
+| hit `/` directly | 401; auth is a hard gate |
+| replay ticket | one-shot, 403 |
+| poster stego | clean (LSB and container layers) |
+| QR | a real find (YouTube channel), but the host cannot reach YouTube |
+| Cookies | exclusively locked — the biggest technical blocker of the event |
 
-### 如果重来
+### If we did it again
 
-1. **先退出房间再复制 Cookies**，这是已知可行的路径，应该在发现 401 的 10 分钟内就做
-2. 拿到会话后，Quick.Cms 的标准打点：`/admin.php` 默认口令、已知 CVE（文件上传 / LFI）
-3. 开发日志的 `PATCH /api/v1/user/preferences` + JWT 中间件是一条独立的越权线
-4. YouTube 频道 `UC7FudH8K64SQn--gGBYmG9g` 值得用能通外网的环境再看一次
+1. **Leave the room, then copy Cookies** — the known-viable path should have been tried within ten
+   minutes of hitting the 401
+2. With a session, standard Quick.Cms hits: `/admin.php` default credentials, known CVEs
+   (file upload / LFI)
+3. The dev log's `PATCH /api/v1/user/preferences` + JWT middleware is a separate privilege-escalation line
+4. Revisit the YouTube channel `UC7FudH8K64SQn--gGBYmG9g` from a host with internet access

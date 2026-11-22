@@ -1,31 +1,32 @@
-# 游戏中心 · Typeway 2000 与反作弊
+# Game center · Typeway 2000 and its anti-cheat
 
-> 成就: `非人手速` — 在游戏中心的 Typeway 2000 赢得一场比赛
-> 地点: 游戏中心（活动街机 / 弹珠台 / 节奏游戏 / 四风麻将）
+> Achievement: `非人手速` (non-human speed) — win a Typeway 2000 race in the game center
+> Location: game center (event arcade / pinball / rhythm / Four Winds mahjong)
 
-## 1. 四台机器
+## 1. Four machines
 
-| 机器 | 状态 | 说明 |
+| Machine | Status | Notes |
 |---|---|---|
-| **弹珠台** Space Cadet Pinball | 可玩 | 三个成就：`First game +10,000` / `Bank clear +75,000` / `Lane master +50,000` |
-| **四风麻将** Four Winds | 可玩 | 立直麻将东风战，3 bot，25000 起分，东 1-4 |
-| **Typeway 2000** | **机制打穿** | 打字竞速，本文重点 |
-| **节奏游戏** | ❌ 坏的 | 卡在 `Loading... 33%`，资源加载失败 |
+| **Pinball** (Space Cadet) | playable | three achievements: `First game +10,000` / `Bank clear +75,000` / `Lane master +50,000` |
+| **Four Winds** mahjong | playable | riichi, East round, 3 bots, 25,000 starting points, East 1–4 |
+| **Typeway 2000** | **mechanics cracked** | typing race — the focus of this page |
+| **Rhythm game** | ❌ broken | stuck at `Loading... 33%`, asset load failure |
 
-### 弹珠台
+### Pinball
 
 ```
 ACHIEVEMENTS
-  ★ First game   +10,000    ← 已点亮
+  ★ First game   +10,000    ← unlocked
     Bank clear   +75,000
     Lane master  +50,000
 ```
 
-操作：`Z/←` 左挡板、`M/→` 右挡板、`Space` 蓄力发射、`N/↑` 撞机（会 tilt）。
+Controls: `Z/←` left flipper, `M/→` right flipper, `Space` hold to charge the plunger then release,
+`N/↑` nudge (careful: tilt).
 
-计分：任务各付一次；**gated ring 内的 orbit pump 每次 1,300 分**。
+Scoring: missions pay once each; **the orbit pump inside the gated ring pays 1,300 per hit**.
 
-排行榜（说明这机器能刷很高；**玩家名已匿名化**）：
+Leaderboard (anonymised; shows the table can be farmed high):
 
 ```
 PLAYER_1   42,267,200
@@ -35,7 +36,7 @@ PLAYER_4   36,190,300
 PLAYER_5   20,092,800
 ```
 
-### 四风麻将
+### Four Winds mahjong
 
 ```
 FOUR WINDS · 四風連鎖 · JAPANESE RIICHI MAHJONG
@@ -43,13 +44,13 @@ Start a match — Bot difficulty: Low / Medium / Hard / Extreme
 東風戦 · EAST 1-4 · Starting points 25,000 · 3 bots
 ```
 
-规则面板写得很完整（立直 / ツモ / ロン / 役），是正经实现，不是占位。
+The rules panel is complete (riichi / tsumo / ron / yaku) — a real implementation, not a placeholder.
 
 ---
 
-## 2. Typeway 2000（重点）
+## 2. Typeway 2000 (the main event)
 
-### 2.1 界面
+### 2.1 Interface
 
 ```
 typeway 2000 — PERSONAL TYPING WORKSTATION
@@ -59,11 +60,11 @@ SPEED 0 WPM | ACCURACY 100% | TIME LEFT 02:00 | PERSONAL BEST — WPM
 
 01 RACE MONITOR   THE LOCAL LOOP / 3 LANES   — 120 SECOND RACE
   YOU      PLAYER_01     —
-  BYTE     110.5 WPM     ← 对手
-  DOT.EXE   80 WPM       ← 对手
+  BYTE     110.5 WPM     ← rival
+  DOT.EXE   80 WPM       ← rival
 
 02 TEXT BUFFER   STANDARD / 219 WORDS
-  [文章]                    0 / 1145 CHARS
+  [passage]                  0 / 1145 CHARS
 
 Race setup:
   One shuffled standard passage. Two rivals.
@@ -71,41 +72,41 @@ Race setup:
   [Start race]  ← The clock starts with your first keystroke.
 ```
 
-### 2.2 三重反作弊
+### 2.2 Three layers of anti-cheat
 
-| 防护 | 表现 | 我们的尝试 |
+| Protection | Behaviour | Our attempt |
 |---|---|---|
-| `user-select: none` | 鼠标选不中文章 | 手动复制失败 |
-| 粘贴无效 | `Ctrl+V` 无反应 | 用 PowerShell `Set-Clipboard` 写入后粘贴，输入框纹丝不动 |
-| **每帧只收一次击键** | 6 ms/字符注入 224 个字符，只进去 1 个 | 见下 |
+| `user-select: none` | passage cannot be selected | manual copy failed |
+| paste ignored | `Ctrl+V` does nothing | wrote to clipboard via PowerShell, then pasted — field unchanged |
+| **one keystroke per frame** | injecting 224 chars at 6 ms/char → only 1 registered | see below |
 
-第三条最关键。界面原文：
+The third is the real one. The interface says:
 
 ```
 One keystroke at a time.
 ```
 
-我以 **6 ms/字符** 注入 224 个字符：
+Injecting 224 characters at **6 ms/char**:
 
 ```
 VK_SENT=224  CHARS=224
-输入框结果：1 个字符
+field result: 1 character
 ```
 
-—— 说明它按渲染帧（~30 fps）取一次键盘事件，其余全部丢弃。
+— it samples keyboard events once per rendered frame (~30 fps) and discards the rest.
 
-### 2.3 成功的关键：scan code
+### 2.3 The key to success: scan codes
 
-尝试了四种注入方式：
+Four injection strategies were tried:
 
-| 方式 | 结果 |
+| Method | Result |
 |---|---|
-| `SendKeys`（`type2.ps1`） | 完全进不去 |
-| `SendInput` + `KEYEVENTF_UNICODE`（`type3.ps1`） | `SendInput` 返回 0（被拒） |
-| `keybd_event` + `KEYEVENTF_UNICODE`（`type4.ps1`） | 调用成功但字符没进去 |
-| **`keybd_event` + VK + `MapVirtualKey` scan code**（`type6.ps1`） | ✅ **成功** |
+| `SendKeys` (`type2.ps1`) | never reaches CEF |
+| `SendInput` + `KEYEVENTF_UNICODE` (`type3.ps1`) | `SendInput` returns 0 (rejected) |
+| `keybd_event` + `KEYEVENTF_UNICODE` (`type4.ps1`) | call succeeds, characters do not land |
+| **`keybd_event` + VK + `MapVirtualKey` scan code** (`type6.ps1`) | ✅ **works** |
 
-核心就一行差别：
+The only difference:
 
 ```csharp
 byte sc = (byte)MapVirtualKey(vk, 0);
@@ -113,71 +114,70 @@ keybd_event(vk, sc, 0, UIntPtr.Zero);      // down
 keybd_event(vk, sc, KEYUP, UIntPtr.Zero);  // up
 ```
 
-**没有 scan code 的合成按键，CEF 直接丢弃。**
+**Without a scan code, CEF silently drops synthetic keys.**
 
-### 2.4 成绩
+### 2.4 Result
 
-42 ms/字符的节奏（略高于一帧）：
+At 42 ms/char (just above one frame):
 
 ```
-SPEED      245 WPM      ← 人手 2~3 倍
-ACCURACY   98 %         （4 处错误：大小写 / 冒号）
+SPEED      245 WPM      ← 2–3× human
+ACCURACY   98 %         (4 errors: case / colon)
 MATCHED    223 / 1150
-你领先      YOU 19%  vs  BYTE 9%  vs  DOT.EXE 6%
+lead       YOU 19%  vs  BYTE 9%  vs  DOT.EXE 6%
 ```
 
-**245 WPM 就是"非人手速"本速。**
+**245 WPM is "non-human speed" by any definition.**
 
-### 2.5 为什么还是输了
+### 2.5 Why we still lost
 
-两个原因：
+Two reasons:
 
-1. **最终分是全程平均**
-   只打了 19%，结算被拉成 `22 WPM`（`PERSONAL BEST 22`）。
-   BYTE 打满 100%（110.5 WPM）赢了。
-2. **打不完全文**
-   `TEXT BUFFER` 是只有 3 行高的固定视窗：
-   - 滚轮滚的是**外层页面**（会跑到 User Guide）
-   - 滚动条拖不动
-   - 输入框覆盖了第 4 行
+1. **The final score is the race average.**
+   With only 19% typed, the result averaged down to `22 WPM` (`PERSONAL BEST 22`).
+   BYTE completed 100% (110.5 WPM) and won.
+2. **We could not type the whole passage.**
+   `TEXT BUFFER` is a fixed **3-line viewport**:
+   - the mouse wheel scrolls the **outer page** (it jumps to User Guide)
+   - the scrollbar does not drag
+   - the input box covers line 4
 
-   **1145 字符只能看到开头 ~250**，读不到的就没法注入。
+   **Only ~250 of the 1145 characters are readable**, and unreadable text cannot be injected.
 
-### 2.6 通关条件（推算）
+### 2.6 Winning conditions (derived)
 
-| 指标 | 数值 |
+| Metric | Value |
 |---|---|
-| 文章长度 | 1140 ~ 1150 字符（208 ~ 219 词） |
-| 限时 | 120 s |
-| BYTE 速度 | 110.5 WPM → 约 552 字符/分钟 → 1145 字符需 ~124 s |
-| 我们需要 | 在 120 s 内打完 1145 字符 |
+| Passage length | 1140–1150 chars (208–219 words) |
+| Time limit | 120 s |
+| BYTE | 110.5 WPM → ~552 chars/min → ~124 s for 1145 chars |
+| Needed | finish 1145 chars within 120 s |
 
-以 20 字符/秒（50 ms/字符，安全高于一帧）计算：
-**1145 字符 ≈ 57 秒**，最终 WPM ≈ **240** —— 完全够用。
+At 20 chars/s (50 ms/char, safely above one frame): **1145 chars ≈ 57 s**, final WPM ≈ **240** —
+comfortably enough.
 
-所以唯一的门槛就是：**把文章完整读出来**。
+So the only blocker is: **get the full passage readable**.
 
-### 2.7 可能的解法（未验证）
+### 2.7 Possible next steps (untested)
 
-1. **最大化窗口 / 提高分辨率**，让 `TEXT BUFFER` 一次显示更多行
-2. **从服务端拿原文**
-   房间页面在 `https://game.cgo.chal.sh/s/<room>/<session>/`，
-   需要会话 Cookie（CEF 独占锁）
-3. **改 CSS**（如果有 devtools —— 没有）
+1. **Maximise the window / raise resolution** so `TEXT BUFFER` shows more lines
+2. **Fetch the passage from the server** — the room page lives at
+   `https://game.cgo.chal.sh/s/<room>/<session>/` and needs the session cookie (exclusively locked by CEF)
+3. Edit the CSS via devtools — not available
 
 ---
 
-## 3. 复盘
+## 3. Retrospective
 
-| 学到 | 内容 |
+| Lesson | Detail |
 |---|---|
-| 合成按键必须带 scan code | 这是 CEF 和普通 Win32 控件的最大区别，`MapVirtualKey` 一行解决 |
-| 反作弊看的是"帧" | 每秒 30 帧 = 每秒最多 30 个可识别击键，注入再快也是浪费 |
-| 判定口径要先确认 | 瞬时 WPM 和全程平均 WPM 是两个指标，我们按前者优化输了后者 |
-| 可读性是硬约束 | 文本只在 3 行视窗里，读不全就打不完 —— 这是设计上的"物理"限制 |
+| Synthetic keys need a scan code | the sharpest difference between CEF and plain Win32 controls; `MapVirtualKey` solves it in one line |
+| Anti-cheat works per frame | 30 fps ⇒ at most 30 recognisable keystrokes per second; injecting faster is wasted |
+| Confirm the grading metric first | instantaneous WPM and race-average WPM are different metrics; we optimised the former and lost the latter |
+| Readability is a hard constraint | the text exists only in a 3-line viewport — a physical limit by design |
 
-这类"游戏内成就"的通用思路：
+General approach for in-game achievements:
 
-1. 先看**成就条件原文**（很直白：`Non-human speed`）
-2. 找**机制层面的捷径**（复制粘贴 / 脚本注入），而不是练手速
-3. 每一层防护都要单独验证（选中 → 粘贴 → 注入 → 频率）
+1. Read the **achievement condition** (here it is literal: non-human speed)
+2. Look for a **mechanism shortcut** (copy/paste, scripted injection) instead of grinding skill
+3. Validate every protection layer separately (select → paste → inject → rate)

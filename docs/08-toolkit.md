@@ -1,18 +1,18 @@
-# 工具链 · Windows GUI 与 CEF 自动化
+# Toolchain · Windows GUI and CEF automation
 
-> 这一节是整场比赛沉淀下来最可复用的部分。
+This page is the most reusable thing to come out of the event.
 
-## 0. 为什么需要它
+## 0. Why it was needed
 
-这是一个 **Unity 客户端 + 内嵌 CEF（UnityWebBrowser）** 的混合体：
+The target is a hybrid: a **Unity client** with an **embedded CEF** (UnityWebBrowser).
 
-- 游戏本体是 Unity（像素风 2D）
-- 每个"设施"打开一个 CEF webview 房间
-- 大量成就要在 webview 里完成（输入框、按钮、拖拽）
+- the game itself is Unity (pixel-art 2D)
+- each "facility" opens a CEF webview room
+- many achievements live inside the webview (text fields, buttons, drag targets)
 
-官方没有 API，只能从外部做 GUI 自动化。
+There is no API, so everything had to be driven from outside.
 
-## 1. 截图
+## 1. Screenshots
 
 ```powershell
 capture.ps1 -Out shot.png
@@ -20,36 +20,38 @@ capture.ps1 -Out shot.png
 # PRINTWINDOW=True SAVED=shot.png
 ```
 
-用 `PrintWindow`，即使窗口被遮挡也能截到内容。
+`PrintWindow` works even when the window is occluded.
 
-**关键坑**：窗口物理尺寸 `3222×1856`，但非 DPI 感知进程拿到的是 `2148×1237`（1.5 倍差）。
-所有坐标必须以**物理像素**为准，脚本第一行就要 `SetProcessDPIAware()`。
+**Key trap:** the window is physically `3222×1856`, but a non-DPI-aware process sees `2148×1237`
+(a 1.5× difference). All coordinates must be physical pixels — call `SetProcessDPIAware()` first.
 
-## 2. 鼠标
+## 2. Mouse
 
 ```powershell
 click.ps1 -X 1611 -Y 1056 -Mode click|dbl|click2|move
 ```
 
-坐标是**相对窗口左上角**的物理像素，脚本内部每次都重新 `GetWindowRect`。
+Coordinates are **window-relative physical pixels**; the script re-reads `GetWindowRect` every time.
 
-三条经验：
+Three lessons:
 
-1. **窗口会漂**：本次会话里从 `(787,23)` 漂到 `(531,125)`，硬编码绝对坐标必错
-2. **第一次点击经常只用来聚焦**，需要连点两次（`-Mode click2`，间隔 420 ms，
-   刚好避开双击判定阈值）
-3. **hover 有用**：部分按钮需要 `mouseover` 才"武装"，脚本里先 `SetCursorPos` 再等 220 ms
+1. **The window moves** — this session went from `(787,23)` to `(531,125)`; hard-coded absolute
+   coordinates always break
+2. **The first click often only focuses**, so double up (`-Mode click2`, 420 ms apart — just above
+   the double-click threshold)
+3. **Hover matters** — some buttons need `mouseover` before they arm; the script moves the cursor and
+   waits 220 ms before clicking
 
-## 3. 键盘
+## 3. Keyboard
 
 ```powershell
 keys.ps1 -Seq "W:500,A:300,E:150"
 ```
 
-`键:按住毫秒`，支持 ESC/WASD/TAB/ENTER/方向键/字母/数字。
+`key:hold-ms`, supporting ESC/WASD/TAB/ENTER/arrows/letters/digits.
 
-**焦点**：`SetForegroundWindow` 单独调用经常失败，必须用 `AttachThreadInput`
-把当前线程挂到前台窗口的输入队列上：
+**Focus**: a bare `SetForegroundWindow` frequently fails. You must attach the current thread to the
+foreground window's input queue:
 
 ```csharp
 AttachThreadInput(curThread, fgThread, true);
@@ -57,19 +59,19 @@ BringWindowToTop(hwnd);
 SetForegroundWindow(hwnd);
 ```
 
-## 4. 文本输入（最大的坑）
+## 4. Text input (the biggest trap)
 
-前后写了 5 个版本，只有最后一个能用：
+Five versions were written; only the last worked:
 
-| 脚本 | 方式 | 结果 |
+| Script | Method | Result |
 |---|---|---|
-| `type.ps1` / `input.ps1` | 点击 + Ctrl+A + Delete + SendKeys | ❌ Ctrl+A/Delete 在 CEF 无效 |
-| `type2.ps1` | `SendKeys` | ❌ 完全进不去 CEF |
-| `type3.ps1` | `SendInput` + `KEYEVENTF_UNICODE` | ❌ `SendInput` 返回 0 |
-| `type4.ps1` | `keybd_event` + `KEYEVENTF_UNICODE` | ❌ 调用成功，字符不进 |
-| **`type6.ps1`** | `keybd_event` + VK + **`MapVirtualKey` scan code** | ✅ 成功 |
+| `type.ps1` / `input.ps1` | click + Ctrl+A + Delete + SendKeys | ❌ Ctrl+A/Delete dead in CEF |
+| `type2.ps1` | `SendKeys` | ❌ never reaches CEF |
+| `type3.ps1` | `SendInput` + `KEYEVENTF_UNICODE` | ❌ `SendInput` returns 0 |
+| `type4.ps1` | `keybd_event` + `KEYEVENTF_UNICODE` | ❌ call succeeds, characters do not land |
+| **`type6.ps1`** | `keybd_event` + VK + **`MapVirtualKey` scan code** | ✅ works |
 
-### 核心代码
+### Core code
 
 ```csharp
 [DllImport("user32.dll")] static extern void keybd_event(byte vk, byte scan, uint flags, UIntPtr extra);
@@ -80,30 +82,28 @@ keybd_event(vk, sc, 0, UIntPtr.Zero);      // down
 keybd_event(vk, sc, 0x0002, UIntPtr.Zero); // up
 ```
 
-**没有 scan code 的合成按键，CEF 会直接丢弃**，但函数返回成功 —— 最坑的一类失败。
+**Without a scan code CEF drops the key silently, while the API still reports success** — the worst
+kind of failure.
 
-### 字符映射
+### Character mapping
 
-需要自己处理 Shift：
+Shift has to be handled by hand (letters / digits / space / period / comma / colon = shift + `0xBA` /
+quotes / question mark, …).
 
-```powershell
-# 字母 / 数字 / 空格 / 句点 / 逗号 / 冒号（shift + 0xBA）/ 引号 / 问号 ...
-```
+### Rate
 
-### 频率
+Many CEF inputs process **one keystroke per rendered frame** (see Typeway 2000).
+A safe cadence is **40–50 ms/char** (above the 33 ms frame).
 
-CEF 里很多输入框**每渲染帧只处理一次击键**（见 Typeway 2000）。
-安全节奏是 **40–50 ms/字符**（高于 33 ms 一帧）。
+## 5. CEF forensics
 
-## 5. CEF 取证
-
-| 脚本 | 作用 |
+| Script | Purpose |
 |---|---|
-| `cef.py` | 遍历 webview 临时目录，导出 `History` |
-| `cookies.py` | 读 `Network\Cookies`（v10 DPAPI 解密） |
-| `cefcookie.py` | 简化版 cookie 提取 |
+| `cef.py` | walk the webview temp dirs, export `History` |
+| `cookies.py` | read `Network\Cookies` (v10 DPAPI) |
+| `cefcookie.py` | simplified cookie extractor |
 
-### 定位 webview 目录
+### Locating the webview directory
 
 ```powershell
 Get-CimInstance Win32_Process |
@@ -111,13 +111,13 @@ Get-CimInstance Win32_Process |
   Select-Object ProcessId, Name, CommandLine
 ```
 
-从 `UnityWebBrowser.Engine.Cef.exe` 的命令行里能直接看到：
+The `UnityWebBrowser.Engine.Cef.exe` command line exposes it directly:
 
 ```
 --user-data-dir="C:\Users\<user>\AppData\Local\Temp\401Unauthorized\webview\<id>\cache"
 ```
 
-### 读 History
+### Reading History
 
 ```python
 import sqlite3
@@ -127,62 +127,64 @@ for url, title, visits in con.execute(
     print(visits, "|", title, "|", url)
 ```
 
-`History` **未加密**，是最有价值的侦察目标；
-`Network\Cookies` 被 CEF 独占锁，需要先退出房间再复制。
+`History` is **unencrypted** and the most valuable recon target; `Network\Cookies` is exclusively
+locked and needs "leave the room, then copy".
 
-## 6. 隐写排查
+## 6. Stego triage
 
 ```powershell
 stego.py -f poster.png
 ```
 
-覆盖：
+Covers:
 
-- PNG 容器层：chunk 遍历、尾部数据、`tEXt` / `zTXt`
-- LSB：bit 平面（**渲染成图**，不是拼字节）
-- 二维码解码（`zxing-cpp`）
+- PNG container: chunk walk, trailing data, `tEXt` / `zTXt`
+- LSB: bit-planes (**rendered as images**, not packed into bytes)
+- QR decoding (`zxing-cpp`)
 
 ## 7. HTTP
 
-PowerShell 5.1 的 TLS 栈在这台机器上是坏的（`SEC_E_NO_CREDENTIALS`），
-所有请求改用 Node：
+PowerShell 5.1's TLS stack is broken on this machine (`SEC_E_NO_CREDENTIALS`), so every request went
+through Node:
 
 ```powershell
 node probe.mjs -url https://target -paths /open,/session,/
 node getroom.cjs <url> out.html
 ```
 
-## 8. PowerShell 的若干坑
+## 8. PowerShell traps
 
-| 坑 | 表现 | 解法 |
+| Trap | Symptom | Fix |
 |---|---|---|
-| 执行策略 | 脚本无法运行 | `powershell.exe -NoProfile -ExecutionPolicy Bypass -File` |
-| 中文路径被 GBK 化 | `实战` → `瀹炴垬` | 输出路径全用 ASCII |
-| `"$i:"` 被当成盘符 | 数组索引报错 | 写 `${i}:` |
-| `node -e` 带引号/正则 | 参数被 PowerShell 吃掉 | 写成 `.mjs` / `.cjs` 文件 |
-| `mouse_event` 的负 delta | `uint` 强转失败 | 用 `[uint32]4294967176`（2³²−120） |
+| Execution policy | scripts refuse to run | `powershell.exe -NoProfile -ExecutionPolicy Bypass -File` |
+| Non-ASCII paths mangled | `实战` → `瀹炴垬` | keep output paths ASCII |
+| `"$i:"` parsed as a drive | array index errors | write `${i}:` |
+| `node -e` with quotes/regex | arguments eaten by PowerShell | put it in a `.mjs` / `.cjs` file |
+| negative `mouse_event` delta | `uint` cast throws | use `[uint32]4294967176` (2³²−120) |
+| BOM on write | stray character in markdown | `[IO.File]::WriteAllText` + `UTF8Encoding($false)` |
 
-## 9. 文件清单
+## 9. File inventory
 
-| 脚本 | 作用 |
+| Script | Purpose |
 |---|---|
-| `capture.ps1` | PrintWindow 截图 + 窗口信息 |
-| `click.ps1` | DPI 感知点击（click / dbl / click2 / move） |
-| `keys.ps1` | 键盘序列注入（含抢焦点） |
-| `type6.ps1` | **VK + scan code 文本注入**（唯一可用版本） |
-| `cef.py` / `cookies.py` / `cefcookie.py` | CEF 缓存 / Cookie 取证 |
-| `stego.py` | PNG 容器 + LSB 排查 |
-| `poster.py` | 海报裁剪 + 增强变体 |
-| `probe.mjs` | HTTP 探测 |
-| `getroom.cjs` | 拉取房间页面 |
-| `inject.mjs` | ticket 注入测试 |
-| `yt.mjs` | YouTube 频道抓取 |
+| `capture.ps1` | PrintWindow screenshot + window info |
+| `click.ps1` | DPI-aware click (click / dbl / click2 / move) |
+| `keys.ps1` | key sequences with focus stealing |
+| `type6.ps1` | **VK + scan code text injection** (the only working version) |
+| `cef.py` / `cookies.py` / `cefcookie.py` | CEF cache / cookie forensics |
+| `stego.py` | PNG container + LSB triage |
+| `poster.py` | poster cropping + enhancement variants |
+| `probe.mjs` | HTTP probing |
+| `getroom.cjs` | fetch a room page |
+| `inject.mjs` | ticket injection tests |
+| `yt.mjs` | YouTube channel fetch |
 
-## 10. 通用建议
+## 10. General advice
 
-1. **写入前先做回显验证**：输入 → 截图 → 比对，不要盲发
-2. **坐标不要硬编码**，每次都从窗口矩形推导
-3. **合成输入失败有三种**：API 返回失败、API 返回成功但被丢弃、进去了但被 frame gate 丢弃
-   —— 只有第一种会报错，后两种必须靠回显发现
-4. **临时目录是宝藏**：`%TEMP%\<AppName>\webview\<id>\cache\Default\`
-   里躺着 History / Preferences / Local Storage / Cookies
+1. **Build echo verification into automation** — type → screenshot → compare; never fire blind
+2. **Never hard-code coordinates** — derive them from the window rect every time
+3. **Synthetic input fails in three ways**: API returns failure, API returns success but the event is
+   dropped, and the event lands but a frame gate discards it. Only the first surfaces as an error —
+   the other two require echo verification
+4. **Temp directories are gold**: `%TEMP%\<AppName>\webview\<id>\cache\Default\` holds
+   History / Preferences / Local Storage / Cookies
